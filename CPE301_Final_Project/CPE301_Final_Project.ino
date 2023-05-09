@@ -9,6 +9,7 @@
 #include <RTClib.h>
 #include <Stepper.h>
 #include <Wire.h>
+
 // UART Pointers
 volatile unsigned char *myUCSR0A = (unsigned char *)0x00C0; //Usart control register A
 volatile unsigned char *myUCSR0B = (unsigned char *)0x00C1; //Usart control register B
@@ -48,9 +49,11 @@ volatile unsigned char* myTCCR1C = 0x82; // Timer/COunter control register C
 volatile unsigned char* myTIMSK1 = 0x6F; // Timer/Counter 1 Interrupt mask register
 volatile unsigned char* myTIFR1  = 0x36; // Timer/Counter 1 Interrupt flag register
 volatile unsigned int*  myTCNT1  = 0x84; // Timer/Counter 1 (high or low?)
-// Library setups
+
+// START OF LIBRARY SET UPS
 #define RDA 0x80
 #define TBE 0x20
+
 // Stepper
 #define IN1 23
 #define IN2 25
@@ -58,10 +61,12 @@ volatile unsigned int*  myTCNT1  = 0x84; // Timer/Counter 1 (high or low?)
 #define IN4 29
 const int stepsPerRev = 2038;
 Stepper myStepper = Stepper(stepsPerRev, IN1, IN2, IN3, IN4);
+
 // Temp / Hemidity
 #define DHT11_PIN 6
 dht DHT;
 int Temp_Threshold = 24;
+
 // LCD
 #define RS 12
 #define EN 11
@@ -70,11 +75,16 @@ int Temp_Threshold = 24;
 #define D6 3
 #define D7 2
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
+
 // RTC
 RTC_DS1307 rtc;
+
 // Water level sensor
 int WL_Threshold = 120;
 int Water_level = 0;
+
+// State values
+
 void setup() {
   // setup the UART
   U0Init(9600);
@@ -105,6 +115,7 @@ void setup() {
 
 void loop() 
 {
+/* ALL THAT IS COMMENTED IS WORKING TEST CODE USED TO ENSURE CIRCUIT IS WORKING
   //test RTC
   DateTime now = rtc.now();
 
@@ -133,6 +144,17 @@ void loop()
   *portG |= 0x02;
   *portG &= 0x01;  
   lcd.clear();
+*/
+
+/*
+EVERYTHING BELLOW IS COMMENT IN THE LOOP IS MY FULL ATTEMPTED AT CODING
+THE LOOP TO OPERATE THE IDEL, DISABLED, ERROR, AND RUNNING STATES
+*/
+  *portB |= 0x10; // Button 3, RESET
+  *portH |= 0x40; // Button 2, SYSTEM OFF
+  *portH |= 0x20; // Button 1, SYSTEM ON
+  *portH |= 0x10; // Turn on Water Level Sensor Pin
+  Water_level = adc_read(0);
 }
 
 //ADC Functions
