@@ -84,6 +84,7 @@ int WL_Threshold = 120;
 int Water_level = 0;
 
 // State values
+volatile char state; //Not sure if this will work
 
 void setup() {
   // setup the UART
@@ -95,6 +96,8 @@ void setup() {
   // LCD
   lcd.begin(16,2);
   lcd.print("hello, world");
+  delay(500);
+  lcd.clear();
   // DC Motor
   *DDR_G |= 0x04; // PG2, DC fan speed
   *DDR_G |= 0x02; // PG1, fan direction 1
@@ -115,7 +118,7 @@ void setup() {
 
 void loop() 
 {
-/* ALL THAT IS COMMENTED IS WORKING TEST CODE USED TO ENSURE CIRCUIT IS WORKING
+/* ALL TESTS ARE WORKING TEST CODE USED TO ENSURE CIRCUIT IS WORKING */
   //test RTC
   DateTime now = rtc.now();
 
@@ -125,6 +128,10 @@ void loop()
   U0putChar('w');
   U0putChar(':');
   print(Water_level);
+  if(Water_level < WL_Threshold)
+  {
+    lcd.print("ERROR");
+  }
 
   //test DHT11 sensor and LCD, THEY WORK
   int chk = DHT.read11(DHT11_PIN);
@@ -144,17 +151,36 @@ void loop()
   *portG |= 0x02;
   *portG &= 0x01;  
   lcd.clear();
-*/
+
 
 /*
 EVERYTHING BELLOW IS COMMENT IN THE LOOP IS MY FULL ATTEMPTED AT CODING
 THE LOOP TO OPERATE THE IDEL, DISABLED, ERROR, AND RUNNING STATES
-*/
+
+  state = 'D';
   *portB |= 0x10; // Button 3, RESET
   *portH |= 0x40; // Button 2, SYSTEM OFF
   *portH |= 0x20; // Button 1, SYSTEM ON
   *portH |= 0x10; // Turn on Water Level Sensor Pin
   Water_level = adc_read(0);
+
+  switch (state)
+  {
+    case 'D':
+      disabled();
+      if(*portH = 0x10)
+      {
+        state = 'I'; // turns system on
+      }
+      break;
+    case 'I':
+      break;
+    case 'E':
+      break;
+    case 'R':
+      break;
+  }
+*/
 }
 
 //ADC Functions
